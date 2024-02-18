@@ -1,6 +1,8 @@
 import sys
+import json
+import csv
 import os
-from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QWidget, QFileDialog, QGridLayout, QMenuBar
+from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QWidget, QFileDialog, QGridLayout, QMenuBar, QVBoxLayout
 from PyQt5.QtGui import QPixmap
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtGui import QCursor
@@ -69,7 +71,7 @@ def frame1():
         '''
     )
     #button callback
-    Process.clicked.connect(show_frame1)
+    Process.clicked.connect(click1)
     widgets["Process"].append(Process)
 
     #place global widgets on the grid
@@ -77,12 +79,35 @@ def frame1():
     grid.addWidget(widgets["Process"][-1], 3, 0, 1, 0) #page 1
 
 
+#def click1():
+#    os.system('cmd /c "mstsc /v:127.0.0.1"')
+
 def click1():
-    os.system('cmd /c "mstsc /v:10.10.126.135"')
+    options = QFileDialog.Options()
+    json_file, _ = QFileDialog.getOpenFileName(w, "Open JSON File", "", "JSON Files (*.json)", options=options)
+
+    if json_file:
+        w.convert_to_csv(json_file)
+
+def convert_to_csv(w, json_file):
+    try:
+        with open(json_file, 'r') as f:
+            data = json.load(f)
+
+        csv_file = json_file.replace('.json', '.csv')
+        with open(csv_file, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=data[0].keys())
+            writer.writeheader()
+            for row in data:
+                writer.writerow(row)
+
+        w.label.setText(f'Conversion successful. CSV file saved as {csv_file}')
+    except Exception as e:
+        w.label.setText(f'Error: {str(e)}')
+
 
 frame1()
 
 w.setLayout(grid)
-
 w.show()
 sys.exit(app.exec()) #terminate the app
