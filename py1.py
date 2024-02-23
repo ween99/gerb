@@ -92,10 +92,16 @@ def click1(grid):
     file_path, _ = QFileDialog.getOpenFileName(None, "Open Text File", "", "Text files (*.txt)")
     if file_path:
         with open(file_path, 'r') as file:
-            text = file.read()
-            for line in file:
-                linestrip = line.strip().split(" ")
+            # Read all lines from the file and split each line
+            lines = [line.strip().split() for line in file]
 
+            # Flatten the list of lists into a single list of words
+            words = [word for line in lines for word in line]
+
+            # Join the words into a single string
+            text = ' '.join(words)
+
+            # Set the text in the QTextEdit widget
             widgets["text_edit"][-1].setPlainText(text)
 
 # GUI application
